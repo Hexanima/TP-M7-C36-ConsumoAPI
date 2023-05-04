@@ -57,7 +57,22 @@ const moviesController = {
     },
     //Aqui debo modificar para crear la funcionalidad requerida
     'buscar': (req, res) => {
-        
+        const MOVIE_REQUEST = req.body.titulo
+        db.Movie.findAll({
+            where: {
+                title: {
+                    [Op.like]: `%${MOVIE_REQUEST}%`
+                }
+            }
+        }).then(movies => {
+            if(movies.length > 0) {
+                return res.render("moviesList", {movies})
+            }
+            const MOVIE_SEARCH = `http://www.omdbapi.com/?apikey=b2eac709&t=${MOVIE_REQUEST}`
+            fetch(MOVIE_SEARCH).then(
+                movie => movie.json()
+            ).then(movie => res.render("moviesDetailOmdb", {movie}))
+        }).catch(err => res.send("Nada xd"))
     },
     //Aqui dispongo las rutas para trabajar con el CRUD
     add: function (req, res) {
